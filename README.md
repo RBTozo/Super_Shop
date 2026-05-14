@@ -129,6 +129,8 @@ Created and maintained for local small-store POS evaluation and testing.
 
 The init script creates tables similar to the following simplified DDL (see `sql/SuperShop_Init.sql` for exact statements):
 
+
+
 ```sql
 CREATE TABLE dbo.Products (
   ProductId INT IDENTITY(1,1) PRIMARY KEY,
