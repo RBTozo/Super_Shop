@@ -1,0 +1,479 @@
+================================================================================
+                      SUPER SHOP - SETUP GUIDE
+         Grocery Shop Management System - SQL Server Edition
+================================================================================
+
+QUICK START OVERVIEW:
+This application requires:
+  1. SQL Server (LocalDB or Express Edition)
+  2. .NET 8.0 Runtime or SDK
+  3. Configuration file (dbconfig.json)
+  4. Database initialization script
+
+================================================================================
+STEP 1: PREREQUISITES - INSTALL REQUIRED SOFTWARE
+================================================================================
+
+Option A: Using SQL Server LocalDB (Recommended for Development)
+-------------------------------------------------------------------
+LocalDB comes with Visual Studio 2022. If not already installed:
+
+1. Download SQL Server LocalDB from:
+   https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb
+
+2. Run the installer and follow default options
+
+3. Verify installation by opening Command Prompt/PowerShell and running:
+   sqllocaldb info
+
+
+Option B: Using SQL Server Express Edition (Production)
+-------------------------------------------------------------------
+1. Download from: https://www.microsoft.com/en-us/sql-server/sql-server-editions-express
+
+2. Run installer with "Basic" setup
+
+3. Note the instance name during installation (usually "SQLEXPRESS")
+
+4. Verify with SQL Server Management Studio (SSMS)
+
+
+Option C: Using Existing SQL Server Instance
+-------------------------------------------------------------------
+If you already have SQL Server installed, note the instance name:
+  - Example: (local) or SERVERNAME\SQLEXPRESS
+  - You'll need this for dbconfig.json configuration
+
+
+.NET 8.0 Runtime Installation
+-------------------------------------------------------------------
+1. Download .NET 8.0 Runtime from:
+   https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+
+2. Install the "Windows Desktop Runtime" (required for Windows Forms apps)
+
+3. Verify installation by opening Command Prompt and running:
+   dotnet --version
+
+   Should output: 8.0.x or higher
+
+
+================================================================================
+STEP 2: DATABASE SETUP
+================================================================================
+
+Method 1: Automatic Setup (Recommended)
+-------------------------------------------------------------------
+The application automatically creates the database and tables on first run,
+IF the database doesn't exist.
+
+Just ensure your SQL Server instance is running and configured in dbconfig.json.
+
+
+Method 2: Manual Setup with SQL Server Management Studio (SSMS)
+-------------------------------------------------------------------
+1. Download SQL Server Management Studio (SSMS) from:
+   https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms
+
+2. Open SSMS and connect to your SQL Server instance:
+   - Server name: (localdb)\MSSQLLocalDB (for LocalDB)
+   - Authentication: Windows Authentication
+
+3. Open the file: sql\SuperShop_Init.sql (included in this folder)
+
+4. Click "Execute" (or press F5) to run the script
+
+5. Verify: In Object Explorer, you should now see:
+   - Database: SuperShopDb
+   - Tables under: Databases > SuperShopDb > Tables
+     * dbo.Users
+     * dbo.Products
+     * dbo.Cart
+     * dbo.Bills
+     * dbo.BillItems
+     * dbo.Reviews
+     * dbo.Offers
+
+
+Method 3: Command Line Setup
+-------------------------------------------------------------------
+Using sqlcmd (SQL Server Command Line Utility):
+
+1. Open Command Prompt and navigate to the project folder containing sql\SuperShop_Init.sql
+
+2. Run the following command:
+   FOR LOCALDB:
+     sqlcmd -S (localdb)\MSSQLLocalDB -E -i sql\SuperShop_Init.sql
+
+   FOR SQL SERVER EXPRESS:
+     sqlcmd -S .\SQLEXPRESS -E -i sql\SuperShop_Init.sql
+
+   FOR REMOTE SERVER:
+     sqlcmd -S SERVERNAME\INSTANCENAME -U username -P password -i sql\SuperShop_Init.sql
+
+3. Wait for completion (should see "Command(s) completed successfully")
+
+
+================================================================================
+STEP 3: CONFIGURATION - SET DATABASE CONNECTION STRING
+================================================================================
+
+The application looks for database connection in this order:
+
+  1. Environment Variable: SUPER_SHOP_CONNECTION
+  2. Configuration File: dbconfig.json (in application folder)
+  3. Default: (localdb)\MSSQLLocalDB (LocalDB on local machine)
+
+
+Option A: Using dbconfig.json (Easiest)
+-------------------------------------------------------------------
+1. Navigate to the application folder (where GroceryShop.exe is located)
+
+2. Create a file named: dbconfig.json
+
+3. Copy the appropriate connection string below and paste into dbconfig.json:
+
+   FOR LOCAL SQL SERVER LOCALDB:
+   {
+     "ConnectionString": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;"
+   }
+
+   FOR SQL SERVER EXPRESS (Default Instance):
+   {
+     "ConnectionString": "Data Source=.\\SQLEXPRESS;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;"
+   }
+
+   FOR SQL SERVER EXPRESS (Named Instance):
+   {
+     "ConnectionString": "Data Source=.\\INSTANCENAME;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;"
+   }
+
+   FOR REMOTE SQL SERVER (With SQL Authentication):
+   {
+     "ConnectionString": "Data Source=SERVERNAME\\INSTANCENAME;Initial Catalog=SuperShopDb;User ID=username;Password=yourpassword;TrustServerCertificate=True;"
+   }
+
+4. Save the file
+
+
+Option B: Using Environment Variable (Windows)
+-------------------------------------------------------------------
+1. Open System Environment Variables:
+   - Press: Windows Key + X, select "System"
+   - Click: Advanced System Settings
+   - Click: Environment Variables button
+
+2. Click "New" under "System variables"
+
+3. Variable name:  SUPER_SHOP_CONNECTION
+   Variable value: [Use appropriate connection string from Option A above]
+
+4. Click OK, and restart the application
+
+
+Option C: No Configuration (Default LocalDB)
+-------------------------------------------------------------------
+If you leave dbconfig.json missing and no environment variable set,
+the application will attempt to connect to:
+   (localdb)\MSSQLLocalDB
+
+This works if you have SQL Server LocalDB installed on your machine.
+
+
+================================================================================
+STEP 4: RUN THE APPLICATION
+================================================================================
+
+Method 1: Run Published Executable
+-------------------------------------------------------------------
+1. Navigate to: bin\Release\net8.0-windows\win-x64\publish
+
+2. Double-click: GroceryShop.exe
+
+3. Application should open. If database doesn't exist, it will be created.
+
+4. Login with test credentials (see Step 5)
+
+
+Method 2: Run from Visual Studio / VS Code
+-------------------------------------------------------------------
+1. Open the project in Visual Studio or VS Code
+
+2. Press: F5 (or Ctrl+F5 for without debugging)
+
+3. Application will build and launch
+
+
+Method 3: Run from Command Line
+-------------------------------------------------------------------
+1. Open Command Prompt/PowerShell
+
+2. Navigate to project folder: cd path\to\supershop
+
+3. Run: dotnet run
+
+OR run the published executable:
+   cd bin\Release\net8.0-windows\win-x64\publish
+   .\GroceryShop.exe
+
+
+================================================================================
+STEP 5: TEST THE APPLICATION
+================================================================================
+
+Default Test Credentials:
+-------------------------------------------------------------------
+
+SUPER ADMIN Account:
+  Email:    super@admin.com
+  Password: admin123
+  Role:     Super Admin (User management)
+
+ADMIN Account:
+  Email:    admin@store.com
+  Password: admin123
+  Role:     Admin (Product inventory)
+
+SALESMAN Account:
+  Email:    sales@store.com
+  Password: sales123
+  Role:     Salesman (POS/Billing)
+
+CUSTOMER Account:
+  Email:    customer@store.com
+  Password: cust123
+  Role:     Customer (Shopping)
+
+
+Testing Steps:
+-------------------------------------------------------------------
+1. On login screen, enter one of the above credentials
+
+2. If successful, you'll see the respective dashboard
+
+3. Try these actions:
+   - Admin: Add/Edit/Delete products
+   - Salesman: Create bills and checkout
+   - Customer: Browse products, add to cart, checkout
+   - Super Admin: Manage users
+
+4. If you see any errors about database connection:
+   - Check that SQL Server is running
+   - Verify dbconfig.json contains correct connection string
+   - Check that SuperShopDb database exists in SQL Server
+
+
+================================================================================
+STEP 6: TROUBLESHOOTING
+================================================================================
+
+Problem: "Cannot connect to database" or "Connection timeout"
+-------------------------------------------------------------------
+Solution:
+  1. Verify SQL Server service is running:
+     - For LocalDB: Open SQL Server Configuration Manager (if installed)
+     - For Express: Check Windows Services (services.msc) for SQL Server
+
+  2. Test connection manually:
+     Open Command Prompt and run:
+     sqlcmd -S (localdb)\MSSQLLocalDB -E
+     If it connects, you'll see "1>" prompt. Type "exit" to close.
+
+  3. Check dbconfig.json connection string matches your SQL Server instance
+
+  4. Ensure database SuperShopDb was created:
+     In SSMS, connect to your instance and check Databases folder
+
+
+Problem: "Database SuperShopDb does not exist"
+-------------------------------------------------------------------
+Solution:
+  1. Run the initialization script: sql\SuperShop_Init.sql (see Step 2, Method 2)
+
+  2. Or let the application create it on first run (requires proper connection)
+
+  3. Verify with SSMS by connecting to your SQL Server instance
+
+
+Problem: "Login failed for user" (SQL Server with SQL Authentication)
+-------------------------------------------------------------------
+Solution:
+  1. Verify username and password in dbconfig.json
+
+  2. Ensure SQL Server has "SQL Server and Windows Authentication mode" enabled
+     (In SSMS, right-click server > Properties > Security)
+
+  3. Verify the user exists and has permissions on SuperShopDb database
+
+
+Problem: "Port already in use" or "Address already in use"
+-------------------------------------------------------------------
+Solution:
+  This is not a networking application, so this shouldn't occur.
+  If it does, restart your computer.
+
+
+Problem: "Windows Forms not working" or "Application crashes on startup"
+-------------------------------------------------------------------
+Solution:
+  1. Ensure .NET 8.0 Desktop Runtime is installed (see Step 1)
+
+  2. Try running from Command Prompt to see error messages:
+     cd bin\Release\net8.0-windows\win-x64\publish
+     .\GroceryShop.exe
+
+  3. Check for any error pop-ups about missing DLLs
+
+
+Problem: "File not found: dbconfig.json"
+-------------------------------------------------------------------
+Solution:
+  1. dbconfig.json is optional - if missing, app uses default LocalDB connection
+
+  2. To use custom connection, create dbconfig.json in same folder as GroceryShop.exe
+
+
+================================================================================
+STEP 7: DATABASE BACKUP & MAINTENANCE
+================================================================================
+
+Backup Database:
+-------------------------------------------------------------------
+In SQL Server Management Studio:
+  1. Right-click SuperShopDb database
+  2. Tasks > Back Up...
+  3. Select location and click OK
+
+
+Restore Database:
+-------------------------------------------------------------------
+In SQL Server Management Studio:
+  1. Right-click Databases folder
+  2. Restore Database...
+  3. Select backup file and click OK
+
+
+View Database Data:
+-------------------------------------------------------------------
+In SQL Server Management Studio:
+  1. Expand Databases > SuperShopDb > Tables
+  2. Right-click any table (e.g., Users, Products)
+  3. Select "Select Top 1000 Rows" to view data
+
+
+Reset Database (Delete all data):
+-------------------------------------------------------------------
+In SQL Server Management Studio:
+  1. Right-click SuperShopDb
+  2. Delete > Check "Close existing connections"
+  3. Run sql\SuperShop_Init.sql again to recreate with default data
+
+
+================================================================================
+STEP 8: APPLICATION FEATURES BY ROLE
+================================================================================
+
+SUPER ADMIN Features:
+  - Add new user accounts
+  - Edit user profiles
+  - Delete users
+  - View all registered users
+
+ADMIN Features:
+  - Add grocery products
+  - Edit product details (price, stock, description)
+  - Delete products
+  - View current inventory
+  - Set minimum stock levels
+
+SALESMAN Features:
+  - View all available products
+  - Create bills for customers
+  - Add products to cart with quantity
+  - Calculate total bill amount
+  - Process checkout/payment
+  - Clear cart
+
+CUSTOMER Features:
+  - Browse all grocery products
+  - Add products to personal cart
+  - View cart with quantities and prices
+  - Adjust quantities before checkout
+  - Complete purchase
+  - View purchase history
+
+
+================================================================================
+STEP 9: BUILD AND PUBLISH FROM SOURCE
+================================================================================
+
+If you want to build the application from source code:
+
+1. Open Command Prompt/PowerShell in project folder
+
+2. Build Release Configuration:
+   dotnet build -c Release
+
+3. Publish Standalone Executable:
+   dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true --self-contained=false -o publish
+
+4. Published files will be in: bin\Release\net8.0-windows\win-x64\publish
+
+5. Copy dbconfig.json to the publish folder if using custom connection
+
+
+================================================================================
+STEP 10: SUPPORT & DOCUMENTATION
+================================================================================
+
+Database Schema:
+  - See: sql\SuperShop_Init.sql for table definitions
+
+Connection String Reference:
+  - See: dbconfig.json template in this document
+
+Source Code:
+  - Main entry point: Program.cs
+  - Database logic: DatabaseHelper.cs
+  - Login form: LoginForm.cs
+  - Dashboards: AdminDashboard.cs, CustomerDashboard.cs, SalesmanDashboard.cs, SuperAdminDashboard.cs
+
+Configuration:
+  - Place dbconfig.json in same folder as GroceryShop.exe
+  - Or set environment variable: SUPER_SHOP_CONNECTION
+
+
+================================================================================
+QUICK REFERENCE - CONNECTION STRINGS
+================================================================================
+
+LocalDB (Default):
+  Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;
+
+SQL Server Express:
+  Data Source=.\\SQLEXPRESS;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;
+
+SQL Server Express (Named Instance):
+  Data Source=.\\MYINSTANCE;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;
+
+SQL Server with SQL Authentication:
+  Data Source=.\\SQLEXPRESS;Initial Catalog=SuperShopDb;User ID=sa;Password=YourPassword;TrustServerCertificate=True;
+
+Remote SQL Server:
+  Data Source=192.168.1.100,1433;Initial Catalog=SuperShopDb;User ID=username;Password=password;TrustServerCertificate=True;
+
+Azure SQL Database:
+  Server=tcp:servername.database.windows.net,1433;Initial Catalog=SuperShopDb;Persist Security Info=False;User ID=username@servername;Password=password;Encrypt=True;Connection Timeout=30;
+
+
+================================================================================
+                            END OF SETUP GUIDE
+================================================================================
+
+Last Updated: May 14, 2026
+Application: Super Shop Grocery Management System
+Database: Microsoft SQL Server
+Framework: .NET 8.0 Windows Forms
+
+For questions or issues, ensure all prerequisites are installed correctly
+and database connection is properly configured in dbconfig.json.

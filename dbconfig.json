@@ -1,0 +1,3 @@
+{
+  "ConnectionString": "Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SuperShopDb;Integrated Security=True;TrustServerCertificate=True;"
+}
