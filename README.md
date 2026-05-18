@@ -90,12 +90,6 @@ cd \path\to\supershop
 - If you already have a `SuperShopDb` and want to preserve data, choose `N` when the script asks to delete the DB.
 - If you see package vulnerability warnings for `Microsoft.Data.SqlClient`, consider upgrading the package version in `GroceryShop.csproj`.
 
-## Next suggestions (optional)
-
-- Add an Admin UI to create and schedule `Offers` (currently the `Offers` table is present but no CRUD UI was added).
-- Add more robust input validation and unit tests for DB helper methods.
-- Export/Import data and backups for `SuperShopDb`.
-
 ---
 Created and maintained for local small-store POS evaluation and testing.
 
@@ -227,8 +221,3 @@ UPDATE dbo.Bills SET DeliveryStatus = N'Pending' WHERE DeliveryStatus IS NULL;
 This repository does not include a license file. Add a `LICENSE` if you plan to redistribute.
 
 ---
-If you want, I can also:
-
-- Add an `Offers` CRUD UI to the Admin dashboard.
-- Create a small SQL migration script to ALTER existing databases instead of the current drop/re-create behavior in `AUTO_SETUP.bat`.
-Just tell me which you prefer.
